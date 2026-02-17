@@ -56,7 +56,7 @@ st.markdown("""
 @st.cache_resource
 def load_resources():
     classifier = load_emotion_classifier(device=-1)  # CPU only
-    df_books, book_vectors = load_books("data/final_df_books.csv")
+    df_books, book_vectors = load_books("data/final_df_books.parquet")
     default_image = Image.open("ui/assets/no_cover.png")
     return classifier, df_books, book_vectors, default_image
 
