@@ -62,7 +62,7 @@ This ensures:
 
 ### High-Level Architecture
 
-![Architecture]("ui\assets\architecture.png")
+![Architecture](ui/assets/architecture.png)
 
 ## 📁 Project Structure
 
