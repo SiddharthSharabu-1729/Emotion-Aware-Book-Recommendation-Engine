@@ -62,33 +62,7 @@ This ensures:
 
 ### High-Level Architecture
 
-```
-Offline Pipeline
-----------------
-Book metadata
-   ↓
-Text cleaning
-   ↓
-Emotion classification (GO-Emotions)
-   ↓
-Emotion scores per book
-   ↓
-Stored as CSV
-
-Online Pipeline
----------------
-User input
-   ↓
-Emotion classification
-   ↓
-Cosine similarity search
-   ↓
-Emotion-aware filtering
-   ↓
-UI rendering
-```
-
----
+![Architecture]("ui\assets\architecture.png")
 
 ## 📁 Project Structure
 
