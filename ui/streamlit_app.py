@@ -17,7 +17,7 @@ from src.recommender.engine import recommend_books
 # Page config
 # ------------------------------------------------------------------
 st.set_page_config(
-    page_title="Mood-Based Book Recommender",
+    page_title="Emotion-Aware Book Recommendation Engine",
     page_icon="📚",
     layout="centered"
 )
