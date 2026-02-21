@@ -38,7 +38,7 @@ classifier, df_books, book_vectors = load_resources()
 # ------------------------------------------------------------------
 # UI
 # ------------------------------------------------------------------
-st.title("📚 Mood-Based Book Recommender")
+st.title("📚 Emotion-Aware Book Recommendation Engine")
 st.write(
     "Describe how you're feeling, and get book recommendations "
     "based on emotional similarity."
