@@ -10,7 +10,7 @@ The system uses **precomputed emotion profiles for books** and matches them agai
 
 https://github.com/user-attachments/assets/1869f2fe-b0ba-420d-9390-31aebbf72f72
 
-👉 **Streamlit App**: *(add your deployed URL here)*  
+👉 **Streamlit App**: *[(https://emotion-aware-book-recommender-1729.streamlit.app/)](https://emotion-aware-book-recommender-1729.streamlit.app/)*  
 ⏱️ **Note**: First load may take ~30–60 seconds due to model cold start on free tier.
 
 ---
