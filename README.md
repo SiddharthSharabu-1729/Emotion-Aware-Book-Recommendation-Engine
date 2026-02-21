@@ -8,6 +8,8 @@ The system uses **precomputed emotion profiles for books** and matches them agai
 
 ## 🚀 Live Demo
 
+https://github.com/user-attachments/assets/1869f2fe-b0ba-420d-9390-31aebbf72f72
+
 👉 **Streamlit App**: *(add your deployed URL here)*  
 ⏱️ **Note**: First load may take ~30–60 seconds due to model cold start on free tier.
 
@@ -112,6 +114,7 @@ Each book is represented as a **28-dimensional emotion vector** derived from:
 - description
 
 Emotion scores are:
+
 - inferred offline,
 - normalized,
 - stored in CSV.
