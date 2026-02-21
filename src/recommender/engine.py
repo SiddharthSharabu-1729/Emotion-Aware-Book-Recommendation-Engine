@@ -20,7 +20,16 @@ def recommend_books(
 
     total = int(np.clip(intensity * 12, 3, max_books))
 
-    user_vec = np.array([o["score"] for o in output], dtype="float32")
+    # Maintain original order from model outputs to match Dataframe columns
+    # We must construct user_vec by referencing the df_books numeric columns order.
+    emotion_cols = df_books.select_dtypes(include=[np.number]).columns
+    
+    # Create dictionary of model outputs mapping label -> score
+    score_map = {o["label"]: o["score"] for o in output}
+    
+    # Construct vector in exact column order as the book_vectors
+    user_vec = np.array([score_map.get(col, 0.0) for col in emotion_cols], dtype="float32")
+    
     similarity = compute_similarity(book_vectors, user_vec)
 
     local_df = df_books.copy()
@@ -58,6 +67,8 @@ def recommend_books(
 
     return {
         "detected_mood": top_emotion,
+        "intensity": intensity,
+        "is_confident": bool(intensity >= 0.20),
         "count": len(results),
         "recommendations": results
     }

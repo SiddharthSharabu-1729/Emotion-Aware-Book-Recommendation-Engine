@@ -8,7 +8,7 @@ from src.recommender.engine import recommend_books
 app = FastAPI(title="Mood-Based Book Recommender")
 
 classifier = load_emotion_classifier(device=-1)
-df_books, book_vectors = load_books("data/final_df_books.csv")
+df_books, book_vectors = load_books("data/final_df_books.parquet")
 
 class UserInput(BaseModel):
     text: str

@@ -1,7 +1,5 @@
 import streamlit as st
 import requests
-from PIL import Image
-from io import BytesIO
 import sys
 from pathlib import Path
 
@@ -25,71 +23,17 @@ st.set_page_config(
 )
 
 # ------------------------------------------------------------------
-# Skeleton CSS
-# ------------------------------------------------------------------
-st.markdown("""
-<style>
-.skeleton {
-  width: 100%;
-  height: 350px;
-  background: linear-gradient(
-    90deg,
-    #eeeeee 25%,
-    #dddddd 37%,
-    #eeeeee 63%
-  );
-  animation: shimmer 1.4s infinite;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-@keyframes shimmer {
-  0% { background-position: -450px 0; }
-  100% { background-position: 450px 0; }
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ------------------------------------------------------------------
 # Load heavy resources ONCE
 # ------------------------------------------------------------------
 @st.cache_resource
 def load_resources():
     classifier = load_emotion_classifier(device=-1)  # CPU only
     df_books, book_vectors = load_books("data/final_df_books.parquet")
-    default_image = Image.open("ui/assets/no_cover.png")
-    return classifier, df_books, book_vectors, default_image
+    return classifier, df_books, book_vectors
 
-
-classifier, df_books, book_vectors, DEFAULT_IMAGE = load_resources()
+classifier, df_books, book_vectors = load_resources()
 
 # ------------------------------------------------------------------
-# Open Library cover fetcher
-# ------------------------------------------------------------------
-@st.cache_data(show_spinner=False)
-def fetch_cover_image(title: str, timeout: float = 2.5):
-    try:
-        search_url = (
-            "https://openlibrary.org/search.json"
-            f"?title={title.replace(' ', '+')}&limit=1"
-        )
-        search_res = requests.get(search_url, timeout=timeout)
-        search_res.raise_for_status()
-
-        docs = search_res.json().get("docs", [])
-        if not docs or "cover_i" not in docs[0]:
-            return None
-
-        cover_id = docs[0]["cover_i"]
-        img_url = f"https://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
-
-        img_res = requests.get(img_url, timeout=timeout)
-        img_res.raise_for_status()
-
-        return Image.open(BytesIO(img_res.content))
-
-    except Exception:
-        return None
 
 # ------------------------------------------------------------------
 # UI
@@ -109,7 +53,7 @@ with st.form("recommendation_form"):
     )
     submitted = st.form_submit_button(
         "Recommend Books",
-        use_container_width=True
+        width="stretch"
     )
 
 # ---- Results container (clears old UI) ----
@@ -134,9 +78,14 @@ if submitted:
         )
 
     mood = result.get("detected_mood", "unknown")
+    is_confident = result.get("is_confident", True)
     recommendations = result.get("recommendations", [])
 
     with results_container.container():
+        if not is_confident:
+            st.warning("I couldn't detect a strong emotion from your text. Tell me a bit more about how you feel!")
+            st.stop()
+            
         st.success(f"Detected Mood: **{mood.capitalize()}**")
 
         if not recommendations:
@@ -144,27 +93,46 @@ if submitted:
             st.stop()
 
         st.subheader("📖 Recommended Books")
-        cols = st.columns(2)
+        
+        import pandas as pd
+        import urllib.parse
+        
+        # Add a Goodreads search link column
+        data_for_df = []
+        for book in recommendations:
+            goodreads_link = f"https://www.goodreads.com/search?q={urllib.parse.quote_plus(book['title'])}"
+            data_for_df.append({
+                "Title": book['title'],
+                "Recommendation Reason": book['reason'],
+                "Match Score": book['score'],
+                "Goodreads": goodreads_link
+            })
+        df_results = pd.DataFrame(data_for_df)
 
-        for idx, book in enumerate(recommendations):
-            with cols[idx % 2]:
-
-                # Skeleton placeholder
-                placeholder = st.empty()
-                placeholder.markdown(
-                    '<div class="skeleton"></div>',
-                    unsafe_allow_html=True
+        # Display as a dataframe (interactive table)
+        st.dataframe(
+            df_results,
+            width='stretch',
+            hide_index=True,
+            column_config={
+                "Title": st.column_config.TextColumn("Title"),
+                "Recommendation Reason": st.column_config.TextColumn(
+                    "Recommendation Reason",
+                    width="small"
+                ),
+                "Match Score": st.column_config.NumberColumn(
+                    "Match Score",
+                    format="%.4f",
+                    width="small"
+                ),
+                "Goodreads": st.column_config.LinkColumn(
+                    "Goodreads Link",
+                    width="medium",
+                    display_text="Search Here"
                 )
-
-                image = fetch_cover_image(book["title"])
-                placeholder.empty()
-
-                if image:
-                    st.image(image, use_container_width=True)
-                else:
-                    st.image(DEFAULT_IMAGE, use_container_width=True)
-
-                st.markdown(f"**{book['title']}**")
-                st.caption(f"Why: {book['reason']}")
-                st.caption(f"Match score: {book['score']}")
-                st.divider()
+            }
+        )
+        
+        st.divider()
+        st.write("How were these recommendations?")
+        st.feedback("thumbs")
