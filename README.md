@@ -1,4 +1,4 @@
-# 📚 Mood-Based Book Recommendation System
+# 📚 Emotion-Aware Book Recommendation Engine
 
 A production-ready **emotion-aware book recommender system** that suggests books based on a user’s emotional state extracted from raw natural-language input.
 
